@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app-test-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-test-app
+  template:
+    metadata:
+      labels:
+        app: python-test-app
+    spec:
+      containers:
+      - name: python-app-test
+        image: medviedievm/python-app-test:initial
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          httpGet:
+            path: /health-check
+            port: 5000
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health-check
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      imagePullSecrets:
+      - name: regcred
