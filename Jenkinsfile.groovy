@@ -1,4 +1,4 @@
-node {
+node('docker') {
     stage("Checkout") {
         checkout scm
         script {
@@ -16,25 +16,30 @@ node {
     def dockerImageTag = "${dockerRepository}:${imageTag}"
 
     try {
-        stage("Build"){
+        stage("Build") {
             image = docker.build(dockerImageTag)
         }
 
-        stage("Push"){
-            dockerWithRegistry('', 'docker-hub-credentials') {   
+        stage("Push") {
+            docker.withRegistry('', 'docker-hub-credentials') {   
                 image.push()
             }
         }
 
         stage('Deploy') {
-            script {
-                sh "kubectl set image deployment/${appName}-deploy ${appName}=${dockerImageTag} --record"
-                sh "kubectl rollout status deployment/${appName}-deploy"
-            }
+            deployToKubernetes(appName, dockerImageTag)
         }
+
     } catch (Throwable e) {
         throw e
     } finally {
         cleanWs()
+    }
+}
+
+def deployToKubernetes(appName, dockerImageTag) {
+    node('master') {
+        sh "kubectl set image deployment/${appName}-deploy ${appName}=${dockerImageTag} --record -n default"
+        sh "kubectl rollout status deployment/${appName}-deploy -n default"
     }
 }
