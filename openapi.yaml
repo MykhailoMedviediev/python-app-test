@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+  title: Simple Flask App with Prometheus Metrics
+  version: 1.0.0
+  description: A basic Flask application exposing Prometheus metrics and endpoints for health and testing.
+
+servers:
+  - url: http://<minikube_ip>:32001
+    description: Development server in Minikube.
+
+paths:
+  /:
+    get:
+      summary: Hello World Endpoint
+      description: Returns a simple "Hello, World!" message.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Hello, World!
+
+  /health-check:
+    get:
+      summary: Health Check Endpoint
+      description: |
+        Returns "OK" to indicate the application is healthy. 
+        This endpoint is used by Kubernetes liveness and readiness probes.
+      responses:
+        '200':
+          description: Successful health check
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+
+  /metrics:
+    get:
+      summary: Prometheus Metrics Endpoint
+      description: |
+        Exposes application metrics in a Prometheus-compatible format.
+        This endpoint is automatically registered by `prometheus_flask_exporter`.
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: |
+                  # HELP flask_http_request_total Total HTTP requests
+                  # TYPE flask_http_request_total counter
+                  flask_http_request_total{method="GET",status="200",endpoint="/"} 1.0
+                  ...
+
+components: {}
