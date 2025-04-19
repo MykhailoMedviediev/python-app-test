@@ -1,7 +1,9 @@
-# Jenkins Agent
+# Jenkins
 
-Jenkins with `kubectl` command in it to manupulate Kubernetes cluster. 
+## Jekins Agent
 
+The Dockerfile in this directory builds a custom Jenkins agent image with `kubectl` installed.  
+It is intended for use in Jenkins pipelines that interact with Kubernetes clusters.
 
 ## Set Up CI/CD
 
