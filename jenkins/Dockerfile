@@ -1,4 +1,5 @@
-FROM jenkins/jnlp-agent-docker:latest
+# Use SHA to guarantee the exact version of the Docker image is used between runs
+FROM jenkins/jnlp-agent-docker@sha256:ae2a5320c217c645c2eb164cf03feb72dc9c782b6b20f15ee731e67da98d850c
 
 USER root
 
