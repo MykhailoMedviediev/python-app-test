@@ -14,9 +14,16 @@ spec:
     spec:
       containers:
       - name: python-app-test
-        image: medviedievm/python-app-test:initial
+        image: medviedievm/python-hello-world-prometheus:v1
         ports:
         - containerPort: 5000
+        resources:
+          requests:
+            cpu: "20m"
+            memory: "32Mi"
+          limits:
+            cpu: "50m"
+            memory: "64Mi"
         readinessProbe:
           httpGet:
             path: /health-check
