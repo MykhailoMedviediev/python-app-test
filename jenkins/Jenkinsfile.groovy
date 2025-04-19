@@ -12,12 +12,12 @@ node('docker') {
     def dockerRepository = 'medviedievm/python-app-test'
 
     def image
-    def imageTag = "${env.GIT_COMMIT_HASH}-${env.BUILD_NUMBER}"
-    def dockerImageTag = "${dockerRepository}:${imageTag}"
+    def versionTag = "${env.GIT_COMMIT_HASH}-${env.BUILD_NUMBER}"
+    def imageWithTag = "${dockerRepository}:${versionTag}"
 
     try {
         stage("Build") {
-            image = docker.build(dockerImageTag)
+            image = docker.build(imageWithTag)
         }
 
         stage("Push") {
@@ -27,7 +27,7 @@ node('docker') {
         }
 
         stage('Deploy') {
-            deployToKubernetes(appName, dockerImageTag)
+            deployToKubernetes(appName, imageWithTag)
         }
 
     } catch (Throwable e) {
@@ -37,9 +37,7 @@ node('docker') {
     }
 }
 
-def deployToKubernetes(appName, dockerImageTag) {
-    node('master') {
-        sh "kubectl set image deployment/${appName}-deploy ${appName}=${dockerImageTag} --record -n default"
-        sh "kubectl rollout status deployment/${appName}-deploy -n default"
-    }
+def deployToKubernetes(appName, imageWithTag) {
+    sh "kubectl set image deployment/${appName}-deploy ${appName}=${imageWithTag} --record -n default"
+    sh "kubectl rollout status deployment/${appName}-deploy -n default"
 }
