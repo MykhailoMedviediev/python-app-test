@@ -12,7 +12,7 @@ node('docker') {
     def dockerRepository = 'medviedievm/python-app-test'
 
     def image
-    def versionTag = "${env.GIT_COMMIT_HASH}-${env.BUILD_NUMBER}"
+    def versionTag = "${env.GIT_COMMIT_HASH}-dev-${env.BUILD_NUMBER}"
     def imageWithTag = "${dockerRepository}:${versionTag}"
 
     try {
@@ -25,15 +25,16 @@ node('docker') {
                 image.push()
             }
         }
-
-        stage('Deploy') {
-            deployToKubernetes(appName, imageWithTag)
-        }
-
     } catch (Throwable e) {
         throw e
     } finally {
         cleanWs()
+    }
+}
+
+node('master') {
+    stage('Deploy') {
+        deployToKubernetes(appName, imageWithTag)
     }
 }
 
