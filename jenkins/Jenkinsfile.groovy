@@ -1,3 +1,12 @@
+properties([disableConcurrentBuilds()])
+
+def appName = 'python-app-test'
+def dockerRepository = 'medviedievm/python-app-test'
+
+def image
+def versionTag = "${env.GIT_COMMIT_HASH}-dev-${env.BUILD_NUMBER}"
+def imageWithTag = "${dockerRepository}:${versionTag}"
+
 node('docker') {
     stage("Checkout") {
         checkout scm
@@ -5,16 +14,7 @@ node('docker') {
             env.GIT_COMMIT_HASH = sh(script: 'git rev-parse --short=5 HEAD', returnStdout: true).trim()
         }
     }
-
-    properties([disableConcurrentBuilds()])
-
-    def appName = 'python-app-test'
-    def dockerRepository = 'medviedievm/python-app-test'
-
-    def image
-    def versionTag = "${env.GIT_COMMIT_HASH}-dev-${env.BUILD_NUMBER}"
-    def imageWithTag = "${dockerRepository}:${versionTag}"
-
+ 
     try {
         stage("Build") {
             image = docker.build(imageWithTag)
